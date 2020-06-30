@@ -3,4 +3,4 @@
 .DS_Store
 /img
 test.txt
-*.cli
+*-cli

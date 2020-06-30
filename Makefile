@@ -14,5 +14,5 @@ stats.o:
 	cc -c stats.c stats.h
 
 clean:
-	rm $(obj)
+	rm $(obj) search.h.gch stats.h.gch
 

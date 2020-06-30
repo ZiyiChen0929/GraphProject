@@ -1,5 +1,5 @@
-#ifndef SEARCH-CLI_UTIL_H
-#define SEARCH-CLI_UTIL_H
+#ifndef SEARCHCLI_UTIL_H
+#define SEARCHCLI_UTIL_H
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -31,4 +31,4 @@ void graph_l_init(FILE *fp);
 void bfs(graph_l *graph);
 void dfs(graph_l *graph);
 
-#endif //SEARCH-CLI_UTIL_H
+#endif //SEARCHCLI_UTIL_H

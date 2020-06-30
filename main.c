@@ -1,69 +1,116 @@
 #include "search.h"
 #include "stats.h"
-#include <string.h>
-#include <getopt.h>
+
+int my_strlen(char *str){
+    int ret = 0;
+    while (str[ret] != '\0'){
+        ret++;
+    }
+    ret++;
+    return ret;
+}
+
+int my_strcmp(char *str1, char *str2){
+    int len1 = my_strlen(str1);
+    int len2 = my_strlen(str2);
+    if (len1 != len2) {
+        return 0;
+    }
+    else{
+        for (int i = 0; i < len1; i++) {
+            if (str1[i] != str2[i]){
+                return 0;
+            }
+        }
+        return 1;
+    }
+}
+
+int my_strcpy(char *dest, int length, char *src){
+    if (dest == NULL){
+        dest = (char *)malloc(sizeof(char) * (length + 1));
+    }
+    if (length > my_strlen(src)){
+        printf("String length error!\n");
+    }
+    for (int i = 0; i < length; i++) {
+        dest[i] = src[i];
+    }
+    dest[length] = '\0';
+}
 
 void print_help_mesg() {
     printf("Usage: algocli [OPTION(s)] infile [outfile]\n");
-    printf("A simple shortest-path algorithm command line interface\n");
+    printf("A simple graph analysis command line interface\n");
     printf("The options are:\n");
     printf(" -h  --help\t\t\t\tYou know what this option is for...\n");
     printf(" -g  --graph <infile>\t\t\tAssume the graph is stored in this file path\n");
     printf(" -s  --stats\t\t\t\tCompute the specified statistics about this graph\n");
-    printf(" -sp  --shortestpath\tSpecify the algorithm and compute the shortest path from given starting point to target point\n");
-    printf(" -u  \t\t\t\t\t\tSpecify the starting point\n");
-    printf(" -v  \t\t\t\t\t\tSpecify the target point\n");
-
+    printf(" -sp  --shortestpath\t\t\tSpecify the shortest path algorithm\n");
+    printf(" -u  \t\t\t\t\tSpecify the starting point\n");
+    printf(" -v  \t\t\t\t\tSpecify the target point\n");
 }
 
-void read_graph_info(char *filp)
-{
+void read_graph_info(char *filp) {
     FILE *fp;
     fp = fopen(filp, "r");
     // insert code
-    return;
 }
 
 int main(int argc, char *argv[]) {
-    char *opt_string = "hd:b:", c;
+    char *opt_string = "hg:s:u:v:", c;
     char *filp;
+    char *stats_params;
+    char *algo_params;
     FILE *fp;
     graph_l *graph;
-
-    /* Test code */
-    graph_l_init(fp);
-    graph_m_init(fp);
-    bfs(graph);
-    dfs(graph);
-
-    struct option long_options[] =
-            {
-                    {"help", no_argument, 0, 'h'},
-                    {"dfs", required_argument, 0, 'd'},
-                    {"bfs", required_argument, 0, 'b'}
-            };
 
     if (argc < 2)
     {
         print_help_mesg();
         exit(1);
     }
-    while((c = getopt_long(argc, argv, opt_string, &long_options[0], NULL)) != -1) {
-        switch (c) {
-            case '?':
-                /* For unknown options or missing argument */
-                print_help_mesg();
-                exit(1);
-            case 'h':
-                print_help_mesg();
-                exit(0);
-            case 'd':
-                filp = strdup(optarg);
-                break;
-            case 'b':
-                filp = strdup(optarg);
-                break;
+    if (!my_strcmp(argv[0], "./search-cli")){
+        print_help_mesg();
+        exit(1);
+    }
+    if (!my_strcmp(argv[1], "-g") && !my_strcmp(argv[1], "--graph")){
+        print_help_mesg();
+        exit(1);
+    }
+    else{
+        int filp_len = my_strlen(argv[2]);
+        filp = (char *)malloc(sizeof(char) * (filp_len + 1));
+        my_strcpy(filp, filp_len, argv[2]);
+        printf("Graph read success\n");
+    }
+    if (my_strcmp(argv[3], "-s") || my_strcmp(argv[3], "--stats")){
+        int stats_len = my_strlen(argv[4]);
+        stats_params = (char *)malloc(sizeof(char) * (stats_len + 1));
+        my_strcpy(stats_params, stats_len, argv[4]);
+        /* Compute the graph statistics */
+        printf("Graph stats computed\n");
+    }
+    else if (my_strcmp(argv[3], "-sp") || my_strcmp(argv[3], "--shortestpath")){
+        int algo_len = my_strlen(argv[4]);
+        algo_params = (char *)malloc(sizeof(char) * (algo_len + 1));
+        my_strcpy(algo_params, algo_len, argv[4]);
+
+        if (my_strcmp(argv[5], "-u") && my_strcmp(argv[7], "-v")){
+            int start_p, target_p;
+            start_p = (int)(*argv[6] - '0');
+            target_p = (int)(*argv[8] - '0');
+            /* Compute the shortest path */
+            printf("The starting point is %d, target point is %d\n", start_p, target_p);
         }
+        else{
+            printf("Missing starting point or target point(see ./search-cli -h for help)\n");
+            exit(1);
+        }
+    }
+    else{
+        print_help_mesg();
+        exit(1);
     }
     return 0;
 }
