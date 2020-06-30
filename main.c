@@ -1,7 +1,9 @@
 #include "search.h"
 #include "stats.h"
 
-int my_strlen(char *str){
+#define MAXLINE 20
+
+int my_strlen(char *str) {
     int ret = 0;
     while (str[ret] != '\0'){
         ret++;
@@ -10,7 +12,7 @@ int my_strlen(char *str){
     return ret;
 }
 
-int my_strcmp(char *str1, char *str2){
+int my_strcmp(char *str1, char *str2) {
     int len1 = my_strlen(str1);
     int len2 = my_strlen(str2);
     if (len1 != len2) {
@@ -51,10 +53,40 @@ void print_help_mesg() {
     printf(" -v  \t\t\t\t\tSpecify the target point\n");
 }
 
-void read_graph_info(char *filp) {
+graph_l *read_graph_info(char *filp) {
     FILE *fp;
+    int src, dest, weight;
+    int edge_num = 0, vertex_num = 0;
+    graph_l *graph = (graph_l *)malloc(sizeof(graph_l));
     fp = fopen(filp, "r");
-    // insert code
+
+    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
+        edge_num++;
+        if (src + 1 > vertex_num){
+            vertex_num = src + 1;
+        }
+    }
+    rewind(fp);
+    graph->edge_n = edge_num;
+    graph->vertex_n = vertex_num;
+    graph->list = (vertex_t **)malloc(sizeof(vertex_t *) * vertex_num);
+    for (int i = 0; i < vertex_num; i++) {
+        graph->list[i] = NULL;
+    }
+    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
+        if (graph->list[src] == NULL){
+            vertex_t *new_vtx = (vertex_t *)malloc(sizeof(vertex_t));
+            new_vtx->val = src;
+            new_vtx->next = NULL;
+            graph->list[src] = new_vtx;
+        }
+        edge_t *new_eg = (edge_t *)malloc(sizeof(edge_t));
+        new_eg->val = dest;
+        new_eg->edge_weight = weight;
+        new_eg->next = graph->list[src]->next;
+        graph->list[src]->next = new_eg;
+    }
+    return graph;
 }
 
 int main(int argc, char *argv[]) {
@@ -70,7 +102,7 @@ int main(int argc, char *argv[]) {
         print_help_mesg();
         exit(1);
     }
-    if (!my_strcmp(argv[0], "./search-cli")){
+    if (!my_strcmp(argv[0], "/home/ziyi/CLionProjects/GraphProject/cmake-build-debug/search-cli")){
         print_help_mesg();
         exit(1);
     }
@@ -82,6 +114,8 @@ int main(int argc, char *argv[]) {
         int filp_len = my_strlen(argv[2]);
         filp = (char *)malloc(sizeof(char) * (filp_len + 1));
         my_strcpy(filp, filp_len, argv[2]);
+        graph_l *adj_list = read_graph_info(filp);
+
         printf("Graph read success\n");
     }
     if (my_strcmp(argv[3], "-s") || my_strcmp(argv[3], "--stats")){

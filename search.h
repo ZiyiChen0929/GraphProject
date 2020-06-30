@@ -9,21 +9,21 @@ typedef struct adj_matrix {
     int **matrix;
 }graph_m;
 
-typedef struct vertex {
-    int             val;
-    struct vertex *next;
-}vertex_t;
-
 typedef struct adj_node {
     int               val;
     int       edge_weight;
     struct adj_node *next;
-}node_t;
+}edge_t;
+
+typedef struct vertex {
+    int             val;
+    edge_t *next;
+}vertex_t;
 
 typedef struct adj_list {
     int   vertex_n;
     int     edge_n;
-    vertex_t *list;
+    vertex_t **list;
 }graph_l;
 
 void graph_m_init(FILE *fp);
