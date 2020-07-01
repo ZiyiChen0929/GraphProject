@@ -16,8 +16,8 @@ graph_l *read_graph_info(char *filp) {
     rewind(fp);
     graph->edge_n = edge_num;
     graph->vertex_n = vertex_num;
-    graph->list = (vertex_t **)malloc(sizeof(vertex_t *) * vertex_num);
-    for (int i = 0; i < vertex_num; i++) {
+    graph->list = (vertex_t **)malloc(sizeof(vertex_t *) * (vertex_num + 1));
+    for (int i = 1; i <= vertex_num; i++) {
         graph->list[i] = NULL;
     }
     while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){

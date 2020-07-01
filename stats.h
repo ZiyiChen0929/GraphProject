@@ -5,5 +5,6 @@
 
 int numberOfEdges(char name[]);
 int numberOfVertices(char name[]);
+double freemanNetworkCentrality(char name[]);
 
 #endif
