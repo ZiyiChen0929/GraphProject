@@ -36,6 +36,68 @@ graph_l *read_graph_info(char *filp) {
     return graph;
 }
 
+void vec_init(vector_t *vector){
+    vector = (vector_t *)malloc(sizeof(vector));
+    vector->head = (node_t *)malloc(sizeof(node_t));
+    vector->tail = (node_t *)malloc(sizeof(node_t));
+    vector->head = NULL;
+    vector->tail = NULL;
+    vector->len = 0;
+}
+
+void append(vector_t *vector, int elem){
+    node_t *new_node = (node_t*)malloc(sizeof(node_t));
+    new_node->vertex = elem;
+    vector->tail->next = new_node;
+    vector->tail = vector->tail->next;
+    vector->len++;
+}
+
+int pop(vector_t *vector){
+    if (vector->len == 0){
+        printf("The vector is empty\n");
+        return -1;
+    }
+    vector->len--;
+    if (vector->len == 0){
+        node_t *tmp = vector->head;
+        int ret = tmp->vertex;
+        free(tmp);
+        vector->head = NULL;
+        vector->tail = NULL;
+        return ret;
+    }
+    node_t *tmp = vector->head;
+    while (tmp->next != vector->tail){
+        tmp = tmp->next;
+    }
+    vector->tail = tmp;
+    int ret = tmp->next->vertex;
+    free(tmp->next);
+    return ret;
+}
+
+int shift(vector_t *vector){
+    if (vector->len == 0){
+        printf("The vector is empty\n");
+        return -1;
+    }
+    vector->len--;
+    if (vector->len == 0){
+        node_t *tmp = vector->head;
+        int ret = tmp->vertex;
+        free(tmp);
+        vector->head = NULL;
+        vector->tail = NULL;
+        return ret;
+    }
+    int ret = vector->head->vertex;
+    node_t *tmp = vector->head;
+    vector->head = vector->head->next;
+    free(tmp);
+    return ret;
+}
+
 void bfs(graph_l *graph) {
     printf("This is bfs\n");
 }

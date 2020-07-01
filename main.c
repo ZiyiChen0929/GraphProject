@@ -52,11 +52,10 @@ void print_help_mesg() {
 }
 
 int main(int argc, char *argv[]) {
-    char *opt_string = "hg:s:u:v:", c;
     char *filp;
     char *stats_params;
     char *algo_params;
-    FILE *fp;
+//    FILE *fp;
     graph_l *graph;
 
     if (argc < 2)
@@ -65,7 +64,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if (!my_strcmp(argv[0], "/home/ziyi/CLionProjects/GraphProject/cmake-build-debug/search-cli")){
+    if (!my_strcmp(argv[0], "./search-cli")){
         print_help_mesg();
         exit(1);
     }
@@ -78,7 +77,7 @@ int main(int argc, char *argv[]) {
         int filp_len = my_strlen(argv[2]);
         filp = (char *)malloc(sizeof(char) * (filp_len + 1));
         my_strcpy(filp, filp_len, argv[2]);
-        graph_l *adj_list = read_graph_info(filp);
+        graph = read_graph_info(filp);
     }
 
     if (my_strcmp(argv[3], "-s") || my_strcmp(argv[3], "--stats")){
