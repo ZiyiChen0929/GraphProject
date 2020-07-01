@@ -11,7 +11,7 @@ search.o:
 	cc -c search.c search.h
 
 stats.o:
-	cc -c stats.c stats.h
+	cc -c stats.c stats.h search.h
 
 clean:
 	rm $(obj) search.h.gch stats.h.gch

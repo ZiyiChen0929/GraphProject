@@ -1,5 +1,5 @@
-#ifndef SEARCHCLI_UTIL_H
-#define SEARCHCLI_UTIL_H
+#ifndef SEARCHCLI_SEARCH_H
+#define SEARCHCLI_SEARCH_H
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,9 +26,8 @@ typedef struct adj_list {
     vertex_t **list;
 }graph_l;
 
-void graph_m_init(FILE *fp);
-void graph_l_init(FILE *fp);
+graph_l *read_graph_info(char *filp);
 void bfs(graph_l *graph);
 void dfs(graph_l *graph);
 
-#endif //SEARCHCLI_UTIL_H
+#endif //SEARCHCLI_SEARCH_H

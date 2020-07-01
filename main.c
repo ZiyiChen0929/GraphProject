@@ -1,8 +1,6 @@
 #include "search.h"
 #include "stats.h"
 
-#define MAXLINE 20
-
 int my_strlen(char *str) {
     int ret = 0;
     while (str[ret] != '\0'){
@@ -53,42 +51,6 @@ void print_help_mesg() {
     printf(" -v  \t\t\t\t\tSpecify the target point\n");
 }
 
-graph_l *read_graph_info(char *filp) {
-    FILE *fp;
-    int src, dest, weight;
-    int edge_num = 0, vertex_num = 0;
-    graph_l *graph = (graph_l *)malloc(sizeof(graph_l));
-    fp = fopen(filp, "r");
-
-    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
-        edge_num++;
-        if (src + 1 > vertex_num){
-            vertex_num = src + 1;
-        }
-    }
-    rewind(fp);
-    graph->edge_n = edge_num;
-    graph->vertex_n = vertex_num;
-    graph->list = (vertex_t **)malloc(sizeof(vertex_t *) * vertex_num);
-    for (int i = 0; i < vertex_num; i++) {
-        graph->list[i] = NULL;
-    }
-    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
-        if (graph->list[src] == NULL){
-            vertex_t *new_vtx = (vertex_t *)malloc(sizeof(vertex_t));
-            new_vtx->val = src;
-            new_vtx->next = NULL;
-            graph->list[src] = new_vtx;
-        }
-        edge_t *new_eg = (edge_t *)malloc(sizeof(edge_t));
-        new_eg->val = dest;
-        new_eg->edge_weight = weight;
-        new_eg->next = graph->list[src]->next;
-        graph->list[src]->next = new_eg;
-    }
-    return graph;
-}
-
 int main(int argc, char *argv[]) {
     char *opt_string = "hg:s:u:v:", c;
     char *filp;
@@ -102,10 +64,12 @@ int main(int argc, char *argv[]) {
         print_help_mesg();
         exit(1);
     }
-    if (!my_strcmp(argv[0], "/home/ziyi/CLionProjects/GraphProject/cmake-build-debug/search-cli")){
+
+    if (!my_strcmp(argv[0], "./search-cli")){
         print_help_mesg();
         exit(1);
     }
+
     if (!my_strcmp(argv[1], "-g") && !my_strcmp(argv[1], "--graph")){
         print_help_mesg();
         exit(1);
@@ -115,15 +79,22 @@ int main(int argc, char *argv[]) {
         filp = (char *)malloc(sizeof(char) * (filp_len + 1));
         my_strcpy(filp, filp_len, argv[2]);
         graph_l *adj_list = read_graph_info(filp);
-
-        printf("Graph read success\n");
     }
+
     if (my_strcmp(argv[3], "-s") || my_strcmp(argv[3], "--stats")){
         int stats_len = my_strlen(argv[4]);
         stats_params = (char *)malloc(sizeof(char) * (stats_len + 1));
         my_strcpy(stats_params, stats_len, argv[4]);
+
         /* Compute the graph statistics */
-        printf("Graph stats computed\n");
+        if (my_strcmp(stats_params, "edges")){
+            int edges = numberOfEdges(filp);
+            printf("The number of edges is %d\n", edges);
+        }
+        else if (my_strcmp(stats_params, "vertices")){
+            int vertices = numberOfVertices(filp);
+            printf("The number of vertices is %d\n", vertices);
+        }
     }
     else if (my_strcmp(argv[3], "-sp") || my_strcmp(argv[3], "--shortestpath")){
         int algo_len = my_strlen(argv[4]);
@@ -146,6 +117,7 @@ int main(int argc, char *argv[]) {
         print_help_mesg();
         exit(1);
     }
+
     return 0;
 }
 
