@@ -41,6 +41,7 @@ int my_strlen(char *str);
 int my_strcmp(char *str1, char *str2);
 int my_strcpy(char *dest, int length, char *src);
 char *int_2_string(int number);
+int str_2_int(char *str);
 
 void vec_init(vector_t *vector);
 void append(vector_t *vector, int elem);

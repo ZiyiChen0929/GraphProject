@@ -52,6 +52,20 @@ char *int_2_string(int number){
     return ret;
 }
 
+int str_2_int(char *str) {
+    char *string = str;
+    int ret = 0;
+    int len = my_strlen(str);
+    for (int i = len - 1; i >= 0; i--) {
+        int sum = (int)(string[i] - '0');
+        for (int j = 0; j < len - i - 1; ++j) {
+            sum *= 10;
+        }
+        ret += sum;
+    }
+    return ret;
+}
+
 graph_l *read_graph_info(char *filp) {
     FILE *fp;
     int src, dest, weight;
@@ -69,7 +83,7 @@ graph_l *read_graph_info(char *filp) {
     graph->edge_n = edge_num;
     graph->vertex_n = vertex_num;
     graph->list = (vertex_t **)malloc(sizeof(vertex_t *) * (vertex_num + 1));
-    for (int i = 1; i <= vertex_num; i++) {
+    for (int i = 0; i <= vertex_num; i++) {
         graph->list[i] = NULL;
     }
     while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
@@ -159,27 +173,30 @@ int shift(vector_t *vector){
     return ret;
 }
 
-char *copypath(vector_t *vector){
+char *copypath(vector_t *vector) {
     char *ret = (char *)malloc(1);
     int index = 0;
     int size = 1;
     node_t *tmp = vector->head;
-    while (tmp != NULL){
-        if (tmp->vertex > 9){
+    while (tmp != NULL) {
+        if (tmp->vertex > 9) {
             char *s = int_2_string(tmp->vertex);
             int len = my_strlen(s);
             for (int i = len - 1; i >= 0; i--) {
                 ret = realloc(ret, ++size);
                 ret[index++] = s[i];
             }
-            if (tmp->next != NULL){
+            if (tmp->next != NULL) {
                 size += 2;
                 ret = realloc(ret, size);
                 ret[index++] = '-';
                 ret[index++] = '>';
             }
+            else {
+                ret[index] = '\0';
+            }
         }
-        else{
+        else {
             ret = realloc(ret, ++size);
             ret[index++] = (char)(tmp->vertex + '0');
             if (tmp->next != NULL){
@@ -187,6 +204,9 @@ char *copypath(vector_t *vector){
                 ret = realloc(ret, size);
                 ret[index++] = '-';
                 ret[index++] = '>';
+            }
+            else {
+                ret[index] = '\0';
             }
         }
         tmp = tmp->next;
@@ -199,14 +219,11 @@ void bfs(graph_l *graph) {
 }
 
 char *dfs(graph_l *graph, int u, int v) {
-    int visited[graph->vertex_n + 1];
-    for (int i = 1; i <= graph->vertex_n; i++) {
-        visited[i] = 0;
-    }
-
     char *path;
+    int visited[graph->vertex_n + 1];
     int ptrlist[graph->vertex_n + 1];
-    for (int i = 1; i <= graph->vertex_n; i++) {
+    for (int i = 0; i <= graph->vertex_n; i++) {
+        visited[i] = 0;
         ptrlist[i] = 0;
     }
 
@@ -216,60 +233,84 @@ char *dfs(graph_l *graph, int u, int v) {
     append(vector, u);
     visited[u] = 1;
 
-    int pre = u;
+    int flag = 0;
+    int pre = u; /* present vertex */
     int weightsum = 0;
     int minweight = 0x7fffffff;
 
-    while(1){
+    while(1) {
         int ptr_index = ptrlist[pre];
-        edge_t *scan = graph->list[pre]->next;
-
-        for(int i = 0; i < ptr_index; i++){
-            scan = scan->next;
-        }
-
-        while(scan != NULL && visited[scan->val] == 1){
-            scan = scan->next;
-            ptr_index++;
-        }
-
-        if(scan == NULL){
+        if (graph->list[pre] == NULL) {
             int ver = pop(vector);
-            if (ver == u){
-                return path;
-            }
             ptrlist[ver] = 0;
             pre = vector->tail->vertex;
             visited[ver] = 0;
             edge_t *tmp = graph->list[pre]->next;
-            while(tmp->val != ver){
+            while (tmp->val != ver) {
                 tmp = tmp->next;
             }
             weightsum -= tmp->edge_weight;
             continue;
         }
-        else{
+        edge_t *scan = graph->list[pre]->next;
+
+        for (int i = 0; i < ptr_index; i++) {
+            scan = scan->next;
+        }
+
+        while (scan != NULL && visited[scan->val] == 1) {
+            scan = scan->next;
+            ptr_index++;
+        }
+
+        if(scan == NULL) {
+            int ver = pop(vector);
+            if (ver == u) {
+                if (flag == 1)
+                {
+                    return path;
+                }
+                else {
+                    return NULL;
+                }
+            }
+            ptrlist[ver] = 0;
+            pre = vector->tail->vertex;
+            visited[ver] = 0;
+            edge_t *tmp = graph->list[pre]->next;
+            while (tmp->val != ver) {
+                tmp = tmp->next;
+            }
+            weightsum -= tmp->edge_weight;
+            continue;
+        }
+        else {
             ptrlist[vector->tail->vertex] = ptr_index + 1;
         }
 
         pre = scan->val;
-        weightsum += scan->edge_weight;
-        visited[pre] = 1;
         append(vector, pre);
+        visited[pre] = 1;
+        weightsum += scan->edge_weight;
 
-        if (pre == v){
-            if (weightsum < minweight){
+        if (weightsum >= minweight) {
+            int ver = pop(vector);
+            visited[ver] = 0;
+            pre = vector->tail->vertex;
+            weightsum -= scan->edge_weight;
+            continue;
+        }
+
+        if (pre == v) {
+            if (weightsum < minweight) {
                 minweight = weightsum;
                 path = copypath(vector);
+                flag = 1;
             }
             int ver = pop(vector);
             visited[ver] = 0;
             pre = vector->tail->vertex;
-            edge_t *tmp = graph->list[pre]->next;
-            while(tmp->val != ver){
-                tmp = tmp->next;
-            }
-            weightsum -= tmp->edge_weight;
+            weightsum -= scan->edge_weight;
         }
     }
 }

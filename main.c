@@ -69,11 +69,16 @@ int main(int argc, char *argv[]) {
         if (my_strcmp(argv[5], "-u") && my_strcmp(argv[7], "-v")){
             int start_p, target_p;
             char *sp;
-            start_p = (int)(*argv[6] - '0');
-            target_p = (int)(*argv[8] - '0');
+            start_p = str_2_int(argv[6]);
+            target_p = str_2_int(argv[8]);
             /* Compute the shortest path */
             sp = shortestpath(start_p, target_p, algo_params, filp);
-            printf("The shortest path is : %s\n", sp);
+            if (sp == NULL){
+                printf("No connections between %d and %d\n", start_p, target_p);
+            }
+            else {
+                printf("The shortest path is : %s\n", sp);
+            }
         }
         else{
             printf("Missing starting point or target point(see ./search-cli -h for help)\n");
@@ -84,7 +89,6 @@ int main(int argc, char *argv[]) {
         print_help_mesg();
         exit(1);
     }
-
     return 0;
 }
 
