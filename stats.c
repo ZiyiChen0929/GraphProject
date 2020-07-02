@@ -45,16 +45,18 @@ int numberOfVertices(char name[]){
     return ret;
 }
 
-double freemanNetworkCentrality(char name[]){
+float freemanNetworkCentrality(char name[]){
     graph_l *graph_e = read_graph_info(name);
     int degree[graph_e->vertex_n + 1];
     int max = -1;
-    for (int i = 1; i <= graph_e->vertex_n; i++) {
-        degree[i] = 0;
+
+    for (int i = 0; i <= graph_e->vertex_n; i++) {
+        degree[i] = -1;
     }
-    for (int j = 1; j <= graph_e->vertex_n; j++) {
-        if (graph_e->list[j] == NULL){
-            degree[j] = 0;
+
+    for (int j = 0; j <= graph_e->vertex_n; j++) {
+        if (graph_e->list[j] == NULL) {
+            continue;
         }
         else {
             edge_t *edge_e = graph_e->list[j]->next;
@@ -65,14 +67,21 @@ double freemanNetworkCentrality(char name[]){
             }
         }
     }
-    for (int k = 1; k <= graph_e->vertex_n; k++) {
+
+    for (int k = 0; k <= graph_e->vertex_n; k++) {
         if (degree[k] > max){
             max = degree[k];
         }
     }
-    double weight_sum = 0;
+
+    float weight_sum = 0;
     for (int l = 1; l <= graph_e->vertex_n; l++) {
+        if (degree[l] == -1){
+            continue;
+        }
         weight_sum += (max - degree[l]);
     }
-    return weight_sum / (graph_e->vertex_n - 1) * (graph_e->vertex_n - 2);
+
+    int num_of_vertex = numberOfVertices(name);
+    return weight_sum / (num_of_vertex - 1) * (num_of_vertex - 2);
 }
