@@ -75,13 +75,15 @@ graph_l *read_graph_info(char *filp) {
 
     while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
         edge_num++;
-        if (src + 1 > vertex_num){
-            vertex_num = src + 1;
+        int tmp = src > dest ? src : dest;
+        if (tmp + 1 > vertex_num){
+            vertex_num = tmp + 1;
         }
     }
     rewind(fp);
     graph->edge_n = edge_num;
     graph->vertex_n = vertex_num;
+    /* adjacency list */
     graph->list = (vertex_t **)malloc(sizeof(vertex_t *) * (vertex_num + 1));
     for (int i = 0; i <= vertex_num; i++) {
         graph->list[i] = NULL;

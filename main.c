@@ -17,7 +17,6 @@ int main(int argc, char *argv[]) {
     char *filp;
     char *stats_params;
     char *algo_params;
-//    FILE *fp;
     graph_l *graph;
 
     if (argc < 2)
@@ -26,7 +25,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if (!my_strcmp(argv[0], "/home/ziyi/CLionProjects/GraphProject/cmake-build-debug/search-cli")){
+    if (!my_strcmp(argv[0], "./search-cli")){
         print_help_mesg();
         exit(1);
     }
