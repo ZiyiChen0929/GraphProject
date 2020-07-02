@@ -37,6 +37,12 @@ typedef struct vector {
     int len;
 }vector_t;
 
+int my_strlen(char *str);
+int my_strcmp(char *str1, char *str2);
+int my_strcpy(char *dest, int length, char *src);
+char *int_2_string(int number);
+int str_2_int(char *str);
+
 void vec_init(vector_t *vector);
 void append(vector_t *vector, int elem);
 int pop(vector_t *vector);
@@ -44,6 +50,7 @@ int shift(vector_t *vector);
 
 graph_l *read_graph_info(char *filp);
 void bfs(graph_l *graph);
-void dfs(graph_l *graph);
+char *dfs(graph_l *graph, int u, int v);
 
+char *shortestpath(int u, int v, char algorithm[], char name[]);
 #endif //SEARCHCLI_SEARCH_H

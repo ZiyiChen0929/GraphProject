@@ -4,8 +4,7 @@
 int numberOfEdges(char name[]){
     FILE *fp;
     int src, dest, weight;
-    int edge_num = 0, vertex_num = 0;
-    graph_l *graph = (graph_l *)malloc(sizeof(graph_l));
+    int edge_num = 0;
     fp = fopen(name, "r");
 
     while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
@@ -16,17 +15,34 @@ int numberOfEdges(char name[]){
 
 int numberOfVertices(char name[]){
     FILE *fp;
+    int ret = 0;
     int src, dest, weight;
-    int edge_num = 0, vertex_num = 0;
-    graph_l *graph = (graph_l *)malloc(sizeof(graph_l));
+    int vertex_num = 0;
+    int *mark;
     fp = fopen(name, "r");
 
     while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
-        if (src + 1 > vertex_num){
-            vertex_num = src + 1;
+        int tmp = src > dest ? src : dest;
+        if (tmp + 1 > vertex_num){
+            vertex_num = tmp + 1;
         }
     }
-    return vertex_num;
+    mark = (int *)malloc(sizeof(int) * vertex_num);
+    for (int i = 0; i < vertex_num; i++) {
+        mark[i] = 0;
+    }
+    rewind(fp);
+    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
+        mark[src] += 1;
+        mark[dest] += 1;
+    }
+
+    for (int i = 0; i < vertex_num; i++) {
+        if (mark[i] != 0){
+            ret++;
+        }
+    }
+    return ret;
 }
 
 double freemanNetworkCentrality(char name[]){

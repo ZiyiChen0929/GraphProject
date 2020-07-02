@@ -1,44 +1,6 @@
 #include "search.h"
 #include "stats.h"
 
-int my_strlen(char *str) {
-    int ret = 0;
-    while (str[ret] != '\0'){
-        ret++;
-    }
-    ret++;
-    return ret;
-}
-
-int my_strcmp(char *str1, char *str2) {
-    int len1 = my_strlen(str1);
-    int len2 = my_strlen(str2);
-    if (len1 != len2) {
-        return 0;
-    }
-    else{
-        for (int i = 0; i < len1; i++) {
-            if (str1[i] != str2[i]){
-                return 0;
-            }
-        }
-        return 1;
-    }
-}
-
-int my_strcpy(char *dest, int length, char *src){
-    if (dest == NULL){
-        dest = (char *)malloc(sizeof(char) * (length + 1));
-    }
-    if (length > my_strlen(src)){
-        printf("String length error!\n");
-    }
-    for (int i = 0; i < length; i++) {
-        dest[i] = src[i];
-    }
-    dest[length] = '\0';
-}
-
 void print_help_mesg() {
     printf("Usage: algocli [OPTION(s)] infile [outfile]\n");
     printf("A simple graph analysis command line interface\n");
@@ -55,7 +17,6 @@ int main(int argc, char *argv[]) {
     char *filp;
     char *stats_params;
     char *algo_params;
-//    FILE *fp;
     graph_l *graph;
 
     if (argc < 2)
@@ -106,10 +67,17 @@ int main(int argc, char *argv[]) {
 
         if (my_strcmp(argv[5], "-u") && my_strcmp(argv[7], "-v")){
             int start_p, target_p;
-            start_p = (int)(*argv[6] - '0');
-            target_p = (int)(*argv[8] - '0');
+            char *sp;
+            start_p = str_2_int(argv[6]);
+            target_p = str_2_int(argv[8]);
             /* Compute the shortest path */
-            printf("The starting point is %d, target point is %d\n", start_p, target_p);
+            sp = shortestpath(start_p, target_p, algo_params, filp);
+            if (sp == NULL){
+                printf("No connections between %d and %d\n", start_p, target_p);
+            }
+            else {
+                printf("The shortest path is : %s\n", sp);
+            }
         }
         else{
             printf("Missing starting point or target point(see ./search-cli -h for help)\n");
@@ -120,7 +88,6 @@ int main(int argc, char *argv[]) {
         print_help_mesg();
         exit(1);
     }
-
     return 0;
 }
 
