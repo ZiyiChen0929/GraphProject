@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if (!my_strcmp(argv[0], "./search-cli")){
+    if (!my_strcmp(argv[0], "/home/ziyi/CLionProjects/GraphProject/cmake-build-debug/search-cli")){
         print_help_mesg();
         exit(1);
     }
