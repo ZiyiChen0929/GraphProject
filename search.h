@@ -3,12 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct adj_matrix {
-    int vertex_n;
-    int   edge_n;
-    int **matrix;
-}graph_m;
-
 typedef struct adj_node {
     int               val;
     int       edge_weight;
@@ -23,6 +17,7 @@ typedef struct vertex {
 typedef struct adj_list {
     int   vertex_n;
     int     edge_n;
+    int      v_num;
     vertex_t **list;
 }graph_l;
 
@@ -75,7 +70,8 @@ int shift(vector_t *vector);
 
 /* graph methods */
 graph_l *read_graph_info(char *filp);
-void bfs(graph_l *graph);
+graph_l *expand_graph(char *filp);
+char *bfs(graph_l *graph, int u, int v);
 char *dfs(graph_l *graph, int u, int v);
 char *dijkstra(graph_l *graph, int u, int v);
 

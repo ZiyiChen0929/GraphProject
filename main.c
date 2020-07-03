@@ -59,6 +59,10 @@ int main(int argc, char *argv[]) {
             float freeman = freemanNetworkCentrality(filp);
             printf("The freeman centrality is %f\n", freeman);
         }
+        else {
+            printf("Invalid parameter(-h for help)\n");
+            exit(1);
+        }
     }
     else if (my_strcmp(argv[3], "-sp") || my_strcmp(argv[3], "--shortestpath")){
         int algo_len = my_strlen(argv[4]);
@@ -80,7 +84,7 @@ int main(int argc, char *argv[]) {
             }
         }
         else{
-            printf("Missing starting point or target point(see ./search-cli -h for help)\n");
+            printf("Missing starting point or target point(-h for help)\n");
             exit(1);
         }
     }
