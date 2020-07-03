@@ -46,7 +46,74 @@ int numberOfVertices(char name[]){
 }
 
 float freemanNetworkCentrality(char name[]){
-    graph_l *graph_e = read_graph_info(name);
+    FILE *fp;
+    int src, dest, weight;
+    int edge_num = 0, vertex_num = 0;
+    graph_l *graph_e = (graph_l *)malloc(sizeof(graph_l));
+    fp = fopen(name, "r");
+
+    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
+        edge_num++;
+        int tmp = src > dest ? src : dest;
+        if (tmp + 1 > vertex_num){
+            vertex_num = tmp + 1;
+        }
+    }
+    rewind(fp);
+    graph_e->edge_n = edge_num;
+    graph_e->vertex_n = vertex_num;
+    /* adjacency list */
+    graph_e->list = (vertex_t **)malloc(sizeof(vertex_t *) * (vertex_num + 1));
+    for (int i = 0; i <= vertex_num; i++) {
+        graph_e->list[i] = NULL;
+    }
+    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
+        int flag = 0;
+        if (graph_e->list[src] != NULL && graph_e->list[dest] != NULL){
+            edge_t *scan = graph_e->list[src]->next;
+            while (scan != NULL){
+                if (scan->val == dest){
+                    flag = 1;
+                    break;
+                }
+                scan = scan->next;
+            }
+            if (flag == 1){
+                continue;
+            }
+            scan = graph_e->list[dest]->next;
+            while (scan != NULL){
+                if (scan->val == src){
+                    flag = 1;
+                    break;
+                }
+                scan = scan->next;
+            }
+            if (flag == 1){
+                continue;
+            }
+        }
+        else {
+            if (graph_e->list[src] == NULL){
+                vertex_t *new_vtx_src = (vertex_t *)malloc(sizeof(vertex_t));
+                new_vtx_src->val = src;
+                new_vtx_src->next = NULL;
+                graph_e->list[src] = new_vtx_src;
+            }
+            if (graph_e->list[dest] == NULL){
+                vertex_t *new_vtx_dest = (vertex_t *)malloc(sizeof(vertex_t));
+                new_vtx_dest->val = src;
+                new_vtx_dest->next = NULL;
+                graph_e->list[dest] = new_vtx_dest;
+            }
+        }
+        edge_t *new_eg = (edge_t *)malloc(sizeof(edge_t));
+        new_eg->val = dest;
+        new_eg->edge_weight = weight;
+        new_eg->next = graph_e->list[src]->next;
+        graph_e->list[src]->next = new_eg;
+    }
+
     int degree[graph_e->vertex_n + 1];
     int max = -1;
 
@@ -73,15 +140,13 @@ float freemanNetworkCentrality(char name[]){
             max = degree[k];
         }
     }
-
     float weight_sum = 0;
-    for (int l = 1; l <= graph_e->vertex_n; l++) {
+    for (int l = 0; l <= graph_e->vertex_n; l++) {
         if (degree[l] == -1){
             continue;
         }
         weight_sum += (max - degree[l]);
     }
-
     int num_of_vertex = numberOfVertices(name);
-    return weight_sum / (num_of_vertex - 1) * (num_of_vertex - 2);
+    return weight_sum / ((num_of_vertex - 1) * (num_of_vertex - 2));
 }
