@@ -110,6 +110,66 @@ graph_l *read_graph_info(char *filp) {
     return graph;
 }
 
+graph_l *expand_graph(char *filp) {
+    FILE *fp;
+    int src, dest, weight;
+    int max_weight = -1;
+    int edge_num = 0, vertex_num = 0;
+    graph_l *graph = (graph_l *)malloc(sizeof(graph_l));
+    fp = fopen(filp, "r");
+
+    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
+        if (weight > max_weight){
+            max_weight = weight;
+        }
+
+        edge_num++;
+        int tmp = src > dest ? src : dest;
+        if (tmp + 1 > vertex_num){
+            vertex_num = tmp + 1;
+        }
+    }
+    rewind(fp);
+    graph->edge_n = edge_num;
+    graph->v_num = vertex_num;
+    /* capacity for all the nodes */
+    graph->vertex_n = vertex_num * max_weight;
+    /* adjacency list */
+    graph->list = (vertex_t **)malloc(sizeof(vertex_t *) * (graph->vertex_n + 1));
+    for (int i = 0; i <= graph->vertex_n; i++) {
+        graph->list[i] = NULL;
+    }
+    while (fscanf(fp, "%d %d %d", &src, &dest, &weight) != EOF){
+        int i;
+        if (graph->list[src] == NULL){
+            vertex_t *new_vtx = (vertex_t *)malloc(sizeof(vertex_t));
+            new_vtx->val = src;
+            new_vtx->next = NULL;
+            graph->list[src] = new_vtx;
+        }
+        for (i = 1; i < weight; i++) {
+            edge_t *new_eg = (edge_t *)malloc(sizeof(edge_t));
+            new_eg->val = src + i * vertex_num;
+            new_eg->edge_weight = 1;
+            new_eg->next = graph->list[src + (i - 1) * vertex_num]->next;
+            graph->list[src + (i - 1) * vertex_num]->next = new_eg;
+
+            if (graph->list[src + i * vertex_num] == NULL){
+                vertex_t *new_vtx = (vertex_t *)malloc(sizeof(vertex_t));
+                new_vtx->val = src + i * vertex_num;
+                new_vtx->next = NULL;
+                graph->list[src + i * vertex_num] = new_vtx;
+            }
+        }
+        edge_t *new_eg = (edge_t *)malloc(sizeof(edge_t));
+        new_eg->val = dest;
+        new_eg->edge_weight = 1;
+        new_eg->next = graph->list[src + (i - 1) * vertex_num]->next;
+        graph->list[src + (i - 1) * vertex_num]->next = new_eg;
+    }
+    return graph;
+}
+
 void vec_init(vector_t *vector){
     vector->head = (node_t *)malloc(sizeof(node_t));
     vector->tail = (node_t *)malloc(sizeof(node_t));
@@ -295,8 +355,62 @@ char *copypath(vector_t *vector) {
     return ret;
 }
 
-void bfs(graph_l *graph) {
-    printf("This is bfs\n");
+char *bfs(graph_l *graph, int u, int v) {
+    // Mark all the vertices as not visited
+    int visited[graph->vertex_n];
+    int parent[graph->vertex_n];
+
+    for (int i = 0; i < graph->vertex_n; i++)
+    {
+        visited[i] = 0;
+        parent[i] = -1;
+    }
+
+    vector_t *vec = (vector_t *)malloc((sizeof(vector_t)));
+    vec_init(vec);
+
+    visited[u] = 1;
+    append(vec, u);
+
+    while (vec->len != 0) {
+        int s = vec->head->vertex;
+
+        if (s == v) {
+            char *path;
+            vector_t *p = (vector_t *)malloc(sizeof(vector_t));
+            vec_init(p);
+            int prev = v;
+            append(p, prev);
+            while (parent[prev] != -1) {
+                prev = parent[prev];
+                if (prev > graph->v_num){
+                    continue;
+                }
+                node_t *new_node = (node_t *)malloc(sizeof(node_t));
+                new_node->vertex = prev;
+                new_node->next = p->head;
+                p->head = new_node;
+            }
+            path = copypath(p);
+            return path;
+        }
+
+        int head = shift(vec);
+
+        if (graph->list[head]->next == NULL){
+            continue;
+        }
+        edge_t *scan = graph->list[head]->next;
+        while (scan != NULL) {
+            if (!visited[scan->val])
+            {
+                visited[scan->val] = 1;
+                append(vec, scan->val);
+                parent[scan->val] = s;
+            }
+            scan = scan->next;
+        }
+    }
 }
 
 char *dfs(graph_l *graph, int u, int v) {
@@ -449,15 +563,17 @@ char *dijkstra(graph_l *graph, int u, int v) {
 }
 
 char *shortestpath(int u, int v, char algorithm[], char name[]){
-    graph_l *graph = read_graph_info(name);
+    graph_l *graph;
     if (my_strcmp(algorithm, "DFS")){
+        graph = read_graph_info(name);
         return dfs(graph, u, v);
     }
     else if (my_strcmp(algorithm, "BFS")){
-        printf("Under construction\n");
-        return NULL;
+        graph = expand_graph(name);
+        return bfs(graph, u, v);
     }
     else if (my_strcmp(algorithm, "Dijkstra")){
+        graph = read_graph_info(name);
         return dijkstra(graph, u, v);
     }
     else{
