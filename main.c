@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if (!my_strcmp(argv[0], "./search-cli")){
+    if (!my_strcmp(argv[0], "/home/ziyi/CLionProjects/GraphProject/cmake-build-debug/search-cli")){
         print_help_mesg();
         exit(1);
     }
@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
             printf("The number of vertices is %d\n", vertices);
         }
         else if (my_strcmp(stats_params, "freeman")){
-            double freeman = freemanNetworkCentrality(filp);
-            printf("The freeman centrality is %lf\n", freeman);
+            float freeman = freemanNetworkCentrality(filp);
+            printf("The freeman centrality is %f\n", freeman);
         }
     }
     else if (my_strcmp(argv[3], "-sp") || my_strcmp(argv[3], "--shortestpath")){

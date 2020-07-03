@@ -1,5 +1,11 @@
 #include "search.h"
 
+void swap(hnode_t **x, hnode_t **y) {
+    hnode_t *temp = *x;
+    *x = *y;
+    *y = temp;
+}
+
 int my_strlen(char *str) {
     int ret = 0;
     while (str[ret] != '\0'){
@@ -175,6 +181,79 @@ int shift(vector_t *vector){
     return ret;
 }
 
+/* reference from Geeksforgeeks */
+void heap_init(heap_t *heap, hnode_t *root){
+    heap->heap_size = 0;
+    heap->capacity = 100000;
+    heap->arr = (hnode_t **)malloc(sizeof(hnode_t *) * heap->capacity);
+//    root->weight = 0;
+    heap->arr[0] = root;
+    heap->heap_size++;
+}
+
+void heapify(heap_t *heap, int index){
+    int l = left_child(index);
+    int r = right_child(index);
+    int smallest = index;
+    if (l < heap->heap_size && heap->arr[l] < heap->arr[index])
+        smallest = l;
+    if (r < heap->heap_size && heap->arr[r] < heap->arr[smallest])
+        smallest = r;
+    if (smallest != index)
+    {
+        swap(&heap->arr[index], &heap->arr[smallest]);
+        heapify(heap, smallest);
+    }
+}
+
+int parent(int index){
+    return (index - 1) / 2;
+}
+
+int left_child(int index){
+    return 2 * index + 1;
+}
+
+int right_child(int index){
+    return 2 * index + 2;
+}
+
+hnode_t *extract_min(heap_t *heap){
+    if (heap->heap_size == 0){
+        printf("The heap is empty\n");
+        return NULL;
+    }
+    if (heap->heap_size == 1){
+        heap->heap_size--;
+        return heap->arr[0];
+    }
+    hnode_t *root = heap->arr[0];
+    heap->arr[0] = heap->arr[heap->heap_size - 1];
+    heap->heap_size--;
+    heapify(heap, 0);
+    return root;
+}
+
+hnode_t *get_min(heap_t *heap){
+    return heap->arr[0];
+}
+
+void insert(heap_t *heap, hnode_t *node){
+    if (heap->heap_size == heap->capacity) {
+        heap->arr = realloc(heap->arr, ++heap->heap_size);
+    }
+
+    heap->heap_size++;
+    int i = heap->heap_size - 1;
+    heap->arr[i] = node;
+
+    while (i != 0 && heap->arr[parent(i)] > heap->arr[i]) {
+        swap(&heap->arr[i], &heap->arr[parent(i)]);
+        i = parent(i);
+    }
+}
+/* src: https://www.geeksforgeeks.org/binary-heap/ */
+
 char *copypath(vector_t *vector) {
     char *ret = (char *)malloc(1);
     int index = 0;
@@ -317,20 +396,73 @@ char *dfs(graph_l *graph, int u, int v) {
     }
 }
 
-void dijkstra(graph_l *graph){
-    printf("This is dijkstra\n");
+char *dijkstra(graph_l *graph, int u, int v) {
+    char *path;
+    int dist[graph->vertex_n];
+    int visited[graph->vertex_n];
+    int previous[graph->vertex_n];
+    for (int i = 0; i < graph->vertex_n; i++) {
+        dist[i] = 0x7fffffff;
+        visited[i] = 0;
+        previous[i] = -1;
+    }
+    /* Initialize the priority queue */
+    heap_t *pq = (heap_t *)malloc(sizeof(heap_t));
+    hnode_t *root = (hnode_t *)malloc(sizeof(hnode_t));
+    root->weight = 0;
+    root->vertex = u;
+    dist[root->vertex] = 0;
+    heap_init(pq, root);
+
+    while (get_min(pq)->vertex != v) {
+        hnode_t *pre = extract_min(pq);
+        if (graph->list[pre->vertex] == NULL){
+            continue;
+        }
+        edge_t *scan = graph->list[pre->vertex]->next;
+        while (scan != NULL && visited[scan->val] == 0){
+            if (dist[scan->val] > dist[pre->vertex] + scan->edge_weight){
+                dist[scan->val] = dist[pre->vertex] + scan->edge_weight;
+                hnode_t *new_node = (hnode_t *)malloc(sizeof(hnode_t));
+                new_node->vertex = scan->val;
+                new_node->weight = dist[scan->val];
+                insert(pq, new_node);
+                previous[scan->val] = pre->vertex;
+            }
+            scan = scan->next;
+        }
+        visited[pre->vertex] = 1;
+    }
+    vector_t *vec = (vector_t *)malloc(sizeof(vector_t));
+    vec_init(vec);
+    int parent = v;
+    append(vec, parent);
+    while (previous[parent] != -1){
+        parent = previous[parent];
+        node_t *new_node = (node_t *)malloc(sizeof(node_t));
+        new_node->vertex = parent;
+        new_node->next = vec->head;
+        vec->head = new_node;
+    }
+    path = copypath(vec);
+    return path;
 }
 
 char *shortestpath(int u, int v, char algorithm[], char name[]){
     graph_l *graph = read_graph_info(name);
     if (my_strcmp(algorithm, "DFS")){
-        dfs(graph, u, v);
+        return dfs(graph, u, v);
     }
     else if (my_strcmp(algorithm, "BFS")){
-
+        printf("Under construction\n");
+        return NULL;
     }
     else if (my_strcmp(algorithm, "Dijkstra")){
-
+        return dijkstra(graph, u, v);
+    }
+    else{
+        printf("Algorithm not valid\n");
+        return NULL;
     }
 }
 
