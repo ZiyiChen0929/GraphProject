@@ -307,7 +307,7 @@ void insert(heap_t *heap, hnode_t *node){
     int i = heap->heap_size - 1;
     heap->arr[i] = node;
 
-    while (i != 0 && heap->arr[parent(i)] > heap->arr[i]) {
+    while (i != 0 && heap->arr[parent(i)]->weight > heap->arr[i]->weight) {
         swap(&heap->arr[i], &heap->arr[parent(i)]);
         i = parent(i);
     }
@@ -328,10 +328,12 @@ char *copypath(vector_t *vector) {
                 ret[index++] = s[i];
             }
             if (tmp->next != NULL) {
-                size += 2;
+                size += 4;
                 ret = realloc(ret, size);
+                ret[index++] = ' ';
                 ret[index++] = '-';
                 ret[index++] = '>';
+                ret[index++] = ' ';
             }
             else {
                 ret[index] = '\0';
@@ -341,10 +343,12 @@ char *copypath(vector_t *vector) {
             ret = realloc(ret, ++size);
             ret[index++] = (char)(tmp->vertex + '0');
             if (tmp->next != NULL){
-                size += 2;
+                size += 4;
                 ret = realloc(ret, size);
+                ret[index++] = ' ';
                 ret[index++] = '-';
                 ret[index++] = '>';
+                ret[index++] = ' ';
             }
             else {
                 ret[index] = '\0';
@@ -382,7 +386,7 @@ char *bfs(graph_l *graph, int u, int v) {
             append(p, prev);
             while (parent[prev] != -1) {
                 prev = parent[prev];
-                if (prev > graph->v_num){
+                if (prev > graph->v_num - 1){
                     continue;
                 }
                 node_t *new_node = (node_t *)malloc(sizeof(node_t));
