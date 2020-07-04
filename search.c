@@ -357,11 +357,10 @@ char *copypath(vector_t *vector) {
 
 char *bfs(graph_l *graph, int u, int v) {
     // Mark all the vertices as not visited
-    int visited[graph->vertex_n];
-    int parent[graph->vertex_n];
+    int *visited = (int *)malloc(sizeof(int) * graph->vertex_n);
+    int *parent = (int *)malloc(sizeof(int) * graph->vertex_n);
 
-    for (int i = 0; i < graph->vertex_n; i++)
-    {
+    for (int i = 0; i < graph->vertex_n; i++) {
         visited[i] = 0;
         parent[i] = -1;
     }
@@ -397,7 +396,7 @@ char *bfs(graph_l *graph, int u, int v) {
 
         int head = shift(vec);
 
-        if (graph->list[head]->next == NULL){
+        if (graph->list[head] == NULL){
             continue;
         }
         edge_t *scan = graph->list[head]->next;

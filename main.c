@@ -13,11 +13,20 @@ void print_help_mesg() {
     printf(" -v  \t\t\t\t\tSpecify the target point\n");
 }
 
+void draw_garlic(){
+    for (float y = -1.5f; y < 1.5f; y += 0.1f){
+        for (float x = -1.5f; x < 1.5f; x += 0.05f) {
+            float a = x * x + y * y - 1;
+            putchar(a * a * a - x * x * y * y * y <= 0.085f ? '*' : ' ');
+        }
+        putchar('\n');
+    }
+}
+
 int main(int argc, char *argv[]) {
     char *filp;
     char *stats_params;
     char *algo_params;
-    graph_l *graph;
 
     if (argc < 2)
     {
@@ -30,15 +39,18 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if (!my_strcmp(argv[1], "-g") && !my_strcmp(argv[1], "--graph")){
-        print_help_mesg();
-        exit(1);
+    if (my_strcmp(argv[1], "-j") == 1){
+        draw_garlic();
+        return 0;
     }
-    else{
+    else if (my_strcmp(argv[1], "-g") || my_strcmp(argv[1], "--graph")){
         int filp_len = my_strlen(argv[2]);
         filp = (char *)malloc(sizeof(char) * (filp_len + 1));
         my_strcpy(filp, filp_len, argv[2]);
-        graph = read_graph_info(filp);
+    }
+    else {
+        print_help_mesg();
+        exit(1);
     }
 
     if (my_strcmp(argv[3], "-s") || my_strcmp(argv[3], "--stats")){
